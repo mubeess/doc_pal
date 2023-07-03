@@ -1,12 +1,35 @@
 import React, { useEffect, useState } from "react";
-import { Button, Input } from "antd";
-import { useLocation } from "react-router-dom";
-
+import { Button, Input, Modal } from "antd";
+import { useLocation, useNavigate } from "react-router-dom";
+import ReactPDF, { PDFDownloadLink } from "@react-pdf/renderer";
+import TextToPdf from "../components/TextToPdf";
 const { TextArea } = Input;
 export default function Details({ params }) {
   const { state } = useLocation();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+  const handleExportPDF = async () => {
+    const pdfBlob = await ReactPDF.renderToStream(<TextToPdf text={value} />);
+    const url = URL.createObjectURL(pdfBlob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "example.pdf";
+    link.click();
+    URL.revokeObjectURL(url);
+  };
   const [value, setValue] = useState(state.data);
+  const navigate = useNavigate();
 
   return (
     <div className="detail_container">
@@ -23,7 +46,7 @@ export default function Details({ params }) {
       />
       <Button
         onClick={() => {
-          console.log(value);
+          showModal();
         }}
         style={{ marginBottom: 10, marginTop: 10, width: "95%", height: 50 }}
       >
@@ -33,9 +56,39 @@ export default function Details({ params }) {
         Share
       </Button>
 
-      <Button type="dashed" style={{ width: "95%", height: 50, marginTop: 10 }}>
+      <Button
+        onClick={() => {
+          navigate("/");
+          setValue("");
+        }}
+        type="dashed"
+        style={{ width: "95%", height: 50, marginTop: 10 }}
+      >
         Retake
       </Button>
+      <Modal
+        title="Select file type"
+        open={isModalOpen}
+        footer={false}
+        onOk={handleOk}
+        onCancel={handleCancel}
+      >
+        <Button
+          onClick={() => handleCancel()}
+          type="primary"
+          style={{ marginRight: 20 }}
+        >
+          <PDFDownloadLink
+            document={<TextToPdf text={value} />}
+            fileName="docpal.pdf"
+          >
+            {({ blob, url, loading, error }) =>
+              loading ? "Loading document..." : "Download Pdf!"
+            }
+          </PDFDownloadLink>
+        </Button>
+        <Button>Save as Word</Button>
+      </Modal>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import React from "react";
 import "../App.css";
-import { Divider, Typography } from "antd";
+import { Divider, Typography, notification } from "antd";
 
 import { useState } from "react";
 import useQuery from "../hooks/useQuery";
@@ -12,6 +12,7 @@ function Home() {
   const { query, loading } = useQuery();
   const [loadFirst, setLoadFirst] = useState(false);
   const [loadSecond, setLoadSecond] = useState(false);
+
   const navigate = useNavigate();
   return (
     <div className="container">
@@ -38,6 +39,12 @@ function Home() {
                 state: {
                   data: response.data.message,
                 },
+              });
+            } else {
+              notification.error({
+                message: `Error`,
+                description: "Error uploading image, please try again.",
+                placement: "topRight",
               });
             }
           }

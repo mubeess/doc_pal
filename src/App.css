@@ -5,7 +5,9 @@
   margin-right: auto;
 }
 .container {
-  padding: 20px;
+  background-color: #242424;
+  width: 90%;
+  padding: 10px;
 }
 .head {
   width: 100%;
